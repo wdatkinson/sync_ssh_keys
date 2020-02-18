@@ -1,20 +1,27 @@
 #!/bin/bash
 
+####################################################################
+# check_update - sync_ssh_keys check script - v1.2 - Bill Atkinson #
+####################################################################
+
+
 # Add this crontab entry to the root user on each satellite box that will receive all keys:
 #
 # 0,15,30,45 * * * * /root/sync_ssh_keys/check_update
 
 HAM=no
+CENTRAL_SVR=jump-debian.wdatkinson.com
+USER=root
 
 #################################################################################################
 
-if scp root@jump-debian.wdatkinson.com:~/sync_ssh_keys/update ./ >&/dev/null; then 
+if scp $USER@$CENTRAL_SVR:~/sync_ssh_keys/update ./ >&/dev/null; then 
         if [ "$HAM" = "yes" ]; then
-                scp root@jump-debian.wdatkinson.com:~/.ssh/authorized_keys ~/.ssh/authorized_keys_per;
-		scp root@jump-debian.wdatkinson.com:~/.ssh/authorized_keys_ham ~/.ssh/authorized_keys_ham; 
+                scp $USER@$CENTRAL_SVR:~/.ssh/authorized_keys ~/.ssh/authorized_keys_per;
+		scp $USER@$CENTRAL_SVR:~/.ssh/authorized_keys_ham ~/.ssh/authorized_keys_ham; 
         	cat ~/.ssh/authorized_keys_per > ~/.ssh/authorized_keys
 		cat ~/.ssh/authorized_keys_ham >> ~/.ssh/authorized_keys
 	else 
-                scp root@jump-debian.wdatkinson.com:~/.ssh/authorized_keys ~/.ssh/authorized_keys;
+                scp $USER@$CENTRAL_SVR:~/.ssh/authorized_keys ~/.ssh/authorized_keys;
         fi
 fi
