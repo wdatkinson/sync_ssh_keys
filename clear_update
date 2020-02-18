@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Add this crontab entry to the root user on the central box that will host all keys:
+#
+# 5,20,35,50 * * * * /root/sync_ssh_keys/clear_update
+
+if [ -f /root/sync_ssh_keys/update ]; then
+	rm -f /root/sync_ssh_keys/update
+fi
