@@ -21,6 +21,12 @@ if scp $USER@$CENTRAL_SVR:~/sync_ssh_keys/update ./ >&/dev/null; then
 		scp $USER@$CENTRAL_SVR:~/.ssh/authorized_keys_ham ~/.ssh/authorized_keys_ham; 
         	cat ~/.ssh/authorized_keys_per > ~/.ssh/authorized_keys
 		cat ~/.ssh/authorized_keys_ham >> ~/.ssh/authorized_keys
+	if [ -f $HOME/.ssh/authorized_keys_per ]; then
+		rm -f $HOME/.ssh/authorized_keys_per
+	fi
+	if [ -f $HOME/.ssh/authorized_keys_ham ]; then
+		rm -f $HOME/.ssh/authorized_keys_ham
+	fi
 	else 
                 scp $USER@$CENTRAL_SVR:~/.ssh/authorized_keys ~/.ssh/authorized_keys;
         fi
