@@ -27,3 +27,10 @@ As always I'm posting this public as a learning tool for others.
 
 73 de NF9K
 Bill Atkinson (for you non-hams)
+
+v1.5 - Significant changes here.  The code base was adopted to my function-based layout that I use in most of my other projects.  Not only does this clean the code up a bit, but it makes troubleshooting and testing easier by being able to test individual parts of the code.  Here is a list of the functional changes in this version:
+ * The Ham option was moved to the command line.  So executing check_update with a parameter of 'yes' will trigger the ham option.  If you're using this option remember to update your cron jobs and add the parameter.
+ * An upgrade routine was built in.  So if you 'touch upgrade' in the ~/sync_ssh_keys directory, the remote script will pull down a new copy.  Since this script was designed to run on many remote servers, I wanted an easy way to upgrade the scripts on each server.  The script currently pulls the two script files only.  It does not grab the README.md or the GPL license.
+ * A sleep routine was added before any operation takes place.  The script will randomize a variable between 1-60 seconds and then sleep for that period before continuing.  This should stagger hits on the central server when multiple remotes are in play.
+ * Added some null redirects to the SCP commands to clean up text output.
+ * Added output to show progress

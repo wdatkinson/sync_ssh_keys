@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ####################################################################
-# clear_update - sync_ssh_keys clear script - v1.1 - Bill Atkinson #
+# clear_update - sync_ssh_keys clear script - v1.2 - Bill Atkinson #
 ####################################################################
 
 
@@ -11,4 +11,8 @@
 
 if [ -f /root/sync_ssh_keys/update ]; then
 	rm -f /root/sync_ssh_keys/update
+fi
+
+if [ -f /root/sync_ssh_keys/upgrade ]; then
+	rm -f /root/sync_ssh_keys/upgrade
 fi

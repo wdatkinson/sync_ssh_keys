@@ -1,33 +1,73 @@
 #!/bin/bash
 
 ####################################################################
-# check_update - sync_ssh_keys check script - v1.2 - Bill Atkinson #
+# check_update - sync_ssh_keys check script - v1.5 - Bill Atkinson #
 ####################################################################
 
 
 # Add this crontab entry to the root user on each satellite box that will receive all keys:
 #
-# 0,15,30,45 * * * * /root/sync_ssh_keys/check_update
+# 0,15,30,45 * * * * /root/sync_ssh_keys/check_update <ham>
 
-HAM=no
+#Variables
+HAM=$1
 CENTRAL_SVR=jump-debian.wdatkinson.com
 USER=root
 
-#################################################################################################
+#Functions
+snooze() {
+# Take a random 1-60 second nap to stagger hits to central server
+NAP=$(( RANDOM % 60 ))
+echo Napping for $NAP seconds....
+sleep $NAP
+echo
+}
 
+upgrade_scripts() {
+# Check for an updated script on central server
+echo Checking for script upgrade....
+echo
+if scp $USER@$CENTRAL_SVR:~/sync_ssh_keys/upgrade ./ >&/dev/null; then
+	echo Upgrade found.  Downloading new version....
+	scp $USER@$CENTRAL_SVR:~/sync_ssh_keys/check_update ~/sync_ssh_keys > /dev/null 2>&1
+	scp $USER@$CENTRAL_SVR:~/sync_ssh_keys/clear_update ~/sync_ssh_keys > /dev/null 2>&1
+	echo
+else
+	echo No upgrade found.  Continuing run....
+	echo
+fi
+}
+
+update_keyring() {
+# Check for updated authorized_keys on central server
+echo Checking for updated key file....
 if scp $USER@$CENTRAL_SVR:~/sync_ssh_keys/update ./ >&/dev/null; then 
+	echo
+	echo Update found.  Downloading new key file....
+	echo
         if [ "$HAM" = "yes" ]; then
-                scp $USER@$CENTRAL_SVR:~/.ssh/authorized_keys ~/.ssh/authorized_keys_per;
-		scp $USER@$CENTRAL_SVR:~/.ssh/authorized_keys_ham ~/.ssh/authorized_keys_ham; 
+	echo HAM variable detected.  Downloading new ham key file....
+	echo
+                scp $USER@$CENTRAL_SVR:~/.ssh/authorized_keys ~/.ssh/authorized_keys_per > /dev/null 2>&1
+		scp $USER@$CENTRAL_SVR:~/.ssh/authorized_keys_ham ~/.ssh/authorized_keys_ham > /dev/null 2>&1
         	cat ~/.ssh/authorized_keys_per > ~/.ssh/authorized_keys
 		cat ~/.ssh/authorized_keys_ham >> ~/.ssh/authorized_keys
-	if [ -f $HOME/.ssh/authorized_keys_per ]; then
-		rm -f $HOME/.ssh/authorized_keys_per
+		if [ -f $HOME/.ssh/authorized_keys_per ]; then
+			rm -f $HOME/.ssh/authorized_keys_per
+		fi
+		if [ -f $HOME/.ssh/authorized_keys_ham ]; then
+			rm -f $HOME/.ssh/authorized_keys_ham
+		fi
+	else
+                scp $USER@$CENTRAL_SVR:~/.ssh/authorized_keys ~/.ssh/authorized_keys > /dev/null 2>&1
+		echo
 	fi
-	if [ -f $HOME/.ssh/authorized_keys_ham ]; then
-		rm -f $HOME/.ssh/authorized_keys_ham
-	fi
-	else 
-                scp $USER@$CENTRAL_SVR:~/.ssh/authorized_keys ~/.ssh/authorized_keys;
-        fi
 fi
+echo
+}
+
+#Main
+clear
+snooze
+upgrade_scripts
+update_keyring
